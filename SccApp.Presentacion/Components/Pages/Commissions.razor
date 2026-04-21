@@ -1,0 +1,62 @@
+﻿@page "/"
+@rendermode InteractiveServer
+@using SccApp.Application.Services
+@using SccApp.Domain.Base
+@inject CommissionService commissionService
+
+<h2 class="text-center mb-4">Calculadora de Comisiones</h2>
+
+<div class="container">
+    <div class="card shadow p-4">
+
+        <div class="mb-3">
+            <label class="form-label">Ventas Totales</label>
+            <input type="number" class="form-control" @bind="ventas" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Descuentos</label>
+            <input type="number" class="form-control" @bind="descuentos" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">País</label>
+            <select class="form-select" @bind="pais">
+                <option value="India">India</option>
+                <option value="US">Estados Unidos</option>
+                <option value="UK">Reino Unido</option>
+            </select>
+        </div>
+
+        <button class="btn btn-rosita w-100" @onclick="Calcular">
+            Calcular Comisión
+        </button>
+
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger">@errorMessage</div>
+        }
+        @if (comisionResult != null && comisionResult.IsSuccess)
+        {
+            <div class="alert alert-moradito mt-4 text-center">
+                <h5>Comisión Calculada</h5>
+                <strong>Comisión:</strong> @comisionResult.Value.ToString("C", new System.Globalization.CultureInfo("es-DO"))
+            </div>
+        }
+
+    </div>
+</div>
+
+@code {
+    double ventas, descuentos;
+    string pais = "India";
+    Result<double>? comisionResult;
+    string errorMessage;
+
+    void Calcular()
+    {
+        comisionResult = commissionService.CalculateCommission(ventas, descuentos, pais);
+        errorMessage = comisionResult.IsSuccess ? null : comisionResult.Error;
+    }
+}
